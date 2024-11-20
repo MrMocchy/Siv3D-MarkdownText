@@ -1,11 +1,29 @@
 ﻿# include <Siv3D.hpp> // Siv3D v0.6.15
+# include "MarkdownText.h"
+
+void Test(String md, MarkdownTextStyle style, Vec2* pos)
+{
+	SimpleGUI::GetFont()(md).draw(*pos);
+	pos->y += 30;
+
+	MarkdownText(md, style).draw(*pos);
+	pos->y += 50;
+}
 
 void Main()
 {
+	MarkdownTextStyle style;
+	style.font = Font(30);
+	style.italicFont = Font(30, Typeface::Regular, FontStyle::Italic);
 
 	while (System::Update())
 	{
-		
+		ClearPrint();
+
+		Vec2 pos = { 50, 50 };
+
+		Test(U"Hello, *Siv3D*!", style, &pos);
+
 	}
 }
 
