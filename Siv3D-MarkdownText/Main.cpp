@@ -12,9 +12,11 @@ void Test(String md, MarkdownTextStyle style, Vec2* pos)
 
 void Main()
 {
-	MarkdownTextStyle style;
-	style.font = Font(30);
-	style.italicFont = Font(30, Typeface::Regular, FontStyle::Italic);
+	MarkdownTextStyle style{30};
+
+	TextAreaEditState input;
+	input.text = U"# Hello, *Siv3D*!";
+	input.rebuildGlyphs();
 
 	while (System::Update())
 	{
@@ -22,7 +24,10 @@ void Main()
 
 		Vec2 pos = { 50, 50 };
 
-		Test(U"Hello, *Siv3D*!", style, &pos);
+		//Test(U"# Hello, *Siv3D*!", style, &pos);
+
+		SimpleGUI::TextArea(input, Vec2{ 50, 50 }, Size{ 300,500 });
+		MarkdownText(input.text, style).draw(Vec2{400,50}).drawFrame(1, Palette::Yellow);
 
 	}
 }

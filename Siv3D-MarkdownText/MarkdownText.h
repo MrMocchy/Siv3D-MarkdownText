@@ -6,7 +6,7 @@ class MarkdownText
 {
 public:
 	MarkdownText(String markdown, MarkdownTextStyle style)
-		: md{ markdown }
+		: markdown{ markdown }
 		, style{ style }
 	{};
 
@@ -14,7 +14,7 @@ public:
 
 private:
 
-	String md;
+	String markdown;
 	MarkdownTextStyle style;
 
 };
