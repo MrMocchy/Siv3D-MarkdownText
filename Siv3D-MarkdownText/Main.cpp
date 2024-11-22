@@ -15,7 +15,12 @@ void Main()
 	MarkdownTextStyle style{30};
 
 	TextAreaEditState input;
-	input.text = U"# Hello, *Siv3D*!";
+	input.text =
+U"\
+# Hello, *Siv3D*!\n\
+*ilatic* and **bold** words\n\
+this is not a #heading\n\
+";
 	input.rebuildGlyphs();
 
 	while (System::Update())
