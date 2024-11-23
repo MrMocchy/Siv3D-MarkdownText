@@ -23,6 +23,8 @@ this is not a #heading\n\
 ";
 	input.rebuildGlyphs();
 
+	MarkdownText md{ input.text, style };
+
 	while (System::Update())
 	{
 		ClearPrint();
@@ -31,8 +33,10 @@ this is not a #heading\n\
 
 		//Test(U"# Hello, *Siv3D*!", style, &pos);
 
-		SimpleGUI::TextArea(input, Vec2{ 50, 50 }, Size{ 300,500 });
-		MarkdownText(input.text, style).draw(Vec2{400,50}).drawFrame(1, Palette::Yellow);
+		if (SimpleGUI::TextArea(input, Vec2{ 50, 50 }, Size{ 300,500 })) {
+			md = MarkdownText{ input.text, style };
+		}
+		md.draw(Vec2{400,50}).drawFrame(1, Palette::Yellow);
 
 	}
 }

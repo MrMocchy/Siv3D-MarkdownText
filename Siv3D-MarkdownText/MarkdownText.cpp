@@ -1,6 +1,6 @@
 ﻿# include "MarkdownText.h"
 
-RectF MarkdownText::draw(const Vec2& leftTop) const
+MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 {
 	StringView md = markdown;
 
@@ -18,8 +18,7 @@ RectF MarkdownText::draw(const Vec2& leftTop) const
 		}
 	} state;
 
-	Vec2 penPos = leftTop;
-	RectF bound = { penPos, Vec2(0, 0) };
+	Vec2 penPos{ 0,0 };
 
 	while (md.length() > 0) {
 		// 状態変更
@@ -31,7 +30,7 @@ RectF MarkdownText::draw(const Vec2& leftTop) const
 			}
 
 			if (const auto& m = RegExp(U"\\n").match(md); not m.isEmpty()) {
-				penPos.x = leftTop.x;
+				penPos.x = 0;
 				penPos.y += style.font.height() * style.headingScales[state.headingLevel];
 				state.lineBreak();
 				md.remove_prefix(m[0]->length());
@@ -49,7 +48,7 @@ RectF MarkdownText::draw(const Vec2& leftTop) const
 			}
 		}
 
-		// 描画
+		// グリフ情報の追加
 		{
 			const Font& font = state.strong ?
 				(state.italic ? style.strongItalicFont : style.strongFont) :
@@ -57,18 +56,28 @@ RectF MarkdownText::draw(const Vec2& leftTop) const
 			const double scale = style.headingScales[state.headingLevel];
 
 			const auto glyph = font.getGlyph(md[0]);
-			const auto drawedRect = glyph.texture.resized(glyph.texture.size * scale).draw(penPos + glyph.getOffset(scale));
+			const auto pos = penPos + glyph.getOffset(scale);
+			glyphInfos.push_back({ glyph, pos, scale });
+
 			penPos.x += glyph.xAdvance * scale;
-
-			//drawedRect.drawFrame(1);
-			bound.x = Min(bound.x, drawedRect.x);
-			bound.y = Min(bound.y, drawedRect.y);
-			bound.w = Max(bound.x + bound.w, drawedRect.x + drawedRect.w) - bound.x;
-			bound.h = Max(bound.y + bound.h, drawedRect.y + drawedRect.h) - bound.y;
-
 			md.remove_prefix(1);
 		}
 	}
+}
 
+RectF MarkdownText::draw(const Vec2& topLeft) const
+{
+	if (glyphInfos.isEmpty()) {
+		return RectF{ topLeft, 0, 0 };
+	}
+	RectF bound{ glyphInfos[0].pos + topLeft, 0, 0 };
+	for (const auto& g : glyphInfos) {
+		auto rect = g.glyph.texture.resized(g.glyph.texture.size * g.scale).draw(g.pos + topLeft);
+		// rect.drawFrame(1);
+		bound.x = Min(bound.x, rect.x);
+		bound.y = Min(bound.y, rect.y);
+		bound.w = Max(bound.x + bound.w, rect.x + rect.w) - bound.x;
+		bound.h = Max(bound.y + bound.h, rect.y + rect.h) - bound.y;
+	}
 	return bound;
 }

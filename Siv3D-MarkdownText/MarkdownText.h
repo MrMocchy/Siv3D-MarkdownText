@@ -5,17 +5,19 @@
 class MarkdownText
 {
 public:
-	MarkdownText(String markdown, MarkdownTextStyle style)
-		: markdown{ markdown }
-		, style{ style }
-	{};
+	MarkdownText(String markdown, MarkdownTextStyle style);
 
 	RectF draw(const Vec2& topLeft) const;
 
 private:
 
-	String markdown;
-	MarkdownTextStyle style;
+	struct GlyphInfo
+	{
+		Glyph glyph;
+		Vec2 pos;
+		double scale;
+	};
+	Array<GlyphInfo> glyphInfos;
 
 };
 
