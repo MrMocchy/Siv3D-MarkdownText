@@ -8,7 +8,7 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 	struct {
 		bool headOfLine = true;
 
-		int headingLevel = 0;
+		size_t headingLevel = 0;
 		int listLevel = 0;
 
 		bool strong = false;
@@ -37,8 +37,8 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 				continue;
 			}
 			if (const auto& m = RegExp(U"^( *)[\\-\\+\\*] +").match(md); not m.isEmpty()) {
-				int indentSize = m[1]->length();
-				int listLevel = indentSize / style.mdListIndentSpaceSize + 1;
+				size_t indentSize = m[1]->length();
+				size_t listLevel = indentSize / style.mdListIndentSpaceSize + 1;
 				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * (listLevel - 1);
 				const auto bulletChar = listLevel < style.listBullets.length() ? style.listBullets[listLevel - 1] : style.listBullets.back();
 				const auto bulletGlyph = style.font.getGlyph(bulletChar);
@@ -95,7 +95,7 @@ RectF MarkdownText::draw(const Vec2& topLeft) const
 	}
 	RectF bound{ glyphInfos[0].pos + topLeft, 0, 0 };
 	for (const auto& g : glyphInfos) {
-		auto rect = g.glyph.texture.resized(g.glyph.texture.size * g.scale).draw(g.pos + topLeft);
+		auto rect = g.glyph.texture.resized(Vec2(g.glyph.texture.size) * g.scale).draw(g.pos + topLeft);
 		// rect.drawFrame(1);
 		bound.x = Min(bound.x, rect.x);
 		bound.y = Min(bound.y, rect.y);

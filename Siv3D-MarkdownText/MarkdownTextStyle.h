@@ -3,7 +3,7 @@
 class MarkdownTextStyle
 {
 public:
-	double fontSize;
+	int32 fontSize;
 	FontMethod fontMethod = FontMethod::Bitmap;
 	Font font;
 	Font strongFont;
@@ -19,9 +19,9 @@ public:
 	// あるいはBitmapが大きくなるため、SDF/MSDFフォントの方が良いかもしれない。使用する文字種数による？
 	Array<double> headingScales = Array{ 0.5, 1.0, 0.8, 0.7, 0.65, 0.6, 0.55 };
 
-	MarkdownTextStyle(double _fontSize)
+	MarkdownTextStyle(const int32 _fontSize)
 	{
-		fontSize = _fontSize / headingScales[0];
+		fontSize = int32(_fontSize / headingScales[0]);
 		SetFontAuto();
 	}
 
