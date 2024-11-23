@@ -10,6 +10,10 @@ public:
 	Font italicFont;
 	Font strongItalicFont;
 
+	size_t mdListIndentSpaceSize = 2;
+	double listIndentSize = 1;
+	String listBullets = U"•◦";
+
 	// h1(最大)サイズを1.0として、それ以外のサイズを調整する。
 	// これにより Bitmap フォントかつ高解像度で表示できる。
 	// あるいはBitmapが大きくなるため、SDF/MSDFフォントの方が良いかもしれない。使用する文字種数による？

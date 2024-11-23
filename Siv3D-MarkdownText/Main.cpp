@@ -20,6 +20,10 @@ U"\
 # Hello, *Siv3D*!\n\
 *ilatic* and **bold** words\n\
 this is not a #heading\n\
+* list1\n\
+  * list2-1\n\
+    * list3\n\
+  * list2-2\n\
 ";
 	input.rebuildGlyphs();
 
@@ -27,13 +31,13 @@ this is not a #heading\n\
 
 	while (System::Update())
 	{
-		ClearPrint();
 
 		Vec2 pos = { 50, 50 };
 
 		//Test(U"# Hello, *Siv3D*!", style, &pos);
 
 		if (SimpleGUI::TextArea(input, Vec2{ 50, 50 }, Size{ 300,500 })) {
+			ClearPrint();
 			md = MarkdownText{ input.text, style };
 		}
 		md.draw(Vec2{400,50}).drawFrame(1, Palette::Yellow);

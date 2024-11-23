@@ -3,45 +3,68 @@
 MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 {
 	StringView md = markdown;
+	double regularFontScale = style.headingScales[0];
 
 	struct {
+		bool headOfLine = true;
+
 		int headingLevel = 0;
+		int listLevel = 0;
 
 		bool strong = false;
 		bool italic = false;
 
 		void lineBreak() {
+			headOfLine = true;
+
 			headingLevel = 0;
+			listLevel = 0;
 
 			strong = false;
 			italic = false;
 		}
 	} state;
-
+	
 	Vec2 penPos{ 0,0 };
 
 	while (md.length() > 0) {
 		// 状態変更
+		if (state.headOfLine)
 		{
 			if (const auto& m = RegExp(U"^(#{1,6}) +").match(md); not m.isEmpty()) {
 				state.headingLevel = m[1]->length();
 				md.remove_prefix(m[0]->length());
 				continue;
 			}
+			if (const auto& m = RegExp(U"^( *)[\\-\\+\\*] +").match(md); not m.isEmpty()) {
+				int indentSize = m[1]->length();
+				int listLevel = indentSize / style.mdListIndentSpaceSize + 1;
+				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * (listLevel - 1);
+				const auto bulletChar = listLevel < style.listBullets.length() ? style.listBullets[listLevel - 1] : style.listBullets.back();
+				const auto bulletGlyph = style.font.getGlyph(bulletChar);
+				const auto pos = penPos + bulletGlyph.getOffset(regularFontScale);
+				glyphInfos.push_back({ bulletGlyph, pos, regularFontScale });
+				penPos.x += bulletGlyph.xAdvance * regularFontScale;
+				md.remove_prefix(m[0]->length());
+				continue;
+			}
+		}
 
-			if (const auto& m = RegExp(U"\\n").match(md); not m.isEmpty()) {
+		state.headOfLine = false;
+		{
+			if (const auto& m = RegExp(U"^\\n").match(md); not m.isEmpty()) {
 				penPos.x = 0;
 				penPos.y += style.font.height() * style.headingScales[state.headingLevel];
 				state.lineBreak();
 				md.remove_prefix(m[0]->length());
 				continue;
 			}
-			if (const auto& m = RegExp(U"\\*{2}").match(md); not m.isEmpty()) {
+			if (const auto& m = RegExp(U"^\\*{2}").match(md); not m.isEmpty()) {
 				state.strong ^= true;
 				md.remove_prefix(m[0]->length());
 				continue;
 			}
-			if (const auto& m = RegExp(U"\\*{1}").match(md); not m.isEmpty()) {
+			if (const auto& m = RegExp(U"^\\*{1}").match(md); not m.isEmpty()) {
 				state.italic ^= true;
 				md.remove_prefix(m[0]->length());
 				continue;
