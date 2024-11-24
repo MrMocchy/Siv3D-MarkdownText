@@ -39,12 +39,10 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 			if (const auto& m = RegExp(U"^( *)[\\-\\+\\*] +").match(md); not m.isEmpty()) {
 				size_t indentSize = m[1]->length();
 				size_t listLevel = indentSize / style.mdListIndentSpaceSize + 1;
-				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * (listLevel - 1);
+				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * (listLevel - 0.66);
 				const auto bulletChar = listLevel < style.listBullets.length() ? style.listBullets[listLevel - 1] : style.listBullets.back();
-				const auto bulletGlyph = style.font.getGlyph(bulletChar);
-				const auto pos = penPos + bulletGlyph.getOffset(regularFontScale);
-				glyphInfos.push_back({ bulletGlyph, pos, regularFontScale });
-				penPos.x += bulletGlyph.xAdvance * regularFontScale;
+				addGlyph(style.font, bulletChar, penPos, regularFontScale);
+				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * listLevel;
 				md.remove_prefix(m[0]->length());
 				continue;
 			}
@@ -78,14 +76,20 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 				(state.italic ? style.italicFont : style.font);
 			const double scale = style.headingScales[state.headingLevel];
 
-			const auto glyph = font.getGlyph(md[0]);
-			const auto pos = penPos + glyph.getOffset(scale);
-			glyphInfos.push_back({ glyph, pos, scale });
+			penPos = addGlyph(font, md[0], penPos, scale);
 
-			penPos.x += glyph.xAdvance * scale;
 			md.remove_prefix(1);
 		}
 	}
+}
+
+Vec2 MarkdownText::addGlyph(const Font& font, const char32& ch, const Vec2& penPos, double scale)
+{
+	const auto glyph = font.getGlyph(ch);
+	const auto pos = penPos + glyph.getOffset(scale);
+	glyphInfos.push_back({ glyph, pos, scale });
+
+	return penPos + Vec2{ glyph.xAdvance * scale, 0 };
 }
 
 RectF MarkdownText::draw(const Vec2& topLeft) const

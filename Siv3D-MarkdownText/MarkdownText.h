@@ -19,5 +19,8 @@ private:
 	};
 	Array<GlyphInfo> glyphInfos;
 
+	Vec2 addGlyph(const Font& font, const char32& ch, const Vec2& penPos, double scale);
+	Vec2 addGlyphs(const Font& font, const String& str, const Vec2& penPos, double scale);
+
 };
 
