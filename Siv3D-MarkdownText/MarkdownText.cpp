@@ -5,11 +5,21 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 	StringView md = markdown;
 	double regularFontScale = style.headingScales[0];
 
+	enum class ListType {
+		Unordered,
+		Ordered,
+	};
+	struct ListInfo {
+		ListType type;
+		size_t mdIndentSize;
+		size_t listLevel;
+	};
+	
 	struct {
 		bool headOfLine = true;
 
 		size_t headingLevel = 0;
-		int listLevel = 0;
+		Array<ListInfo> listNest;
 
 		bool strong = false;
 		bool italic = false;
@@ -18,7 +28,6 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 			headOfLine = true;
 
 			headingLevel = 0;
-			listLevel = 0;
 
 			strong = false;
 			italic = false;
@@ -37,8 +46,34 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 				continue;
 			}
 			if (const auto& m = RegExp(U"^( *)[\\-\\+\\*] +").match(md); not m.isEmpty()) {
-				size_t indentSize = m[1]->length();
-				size_t listLevel = indentSize / style.mdListIndentSpaceSize + 1;
+				ListType type = ListType::Unordered;
+				size_t mdIndentSize = m[1]->length();
+				size_t listLevel = 1;
+				if (state.listNest.size() == 0) {
+					state.listNest.push_back({ type, mdIndentSize, listLevel });
+				}
+				else {
+					for (auto itr = state.listNest.rbegin(); itr != state.listNest.rend(); ++itr) {
+						if (mdIndentSize == itr->mdIndentSize) {
+							type = itr->type;
+							listLevel = itr->listLevel;
+							state.listNest.pop_back_N(state.listNest.rend() - itr - 1);
+							break;
+						}
+						if (mdIndentSize > itr->mdIndentSize) {
+							listLevel = itr->listLevel + 1;
+							state.listNest.push_back({ type, mdIndentSize, listLevel });
+							break;
+						}
+					}
+				}
+				/*
+				String listLevels;
+				for (const auto& l : state.listWrap) {
+					listLevels += U"{} "_fmt(l.listLevel);
+				}
+				Print << U"ListLevels: " << listLevels;
+				*/
 				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * (listLevel - 0.66);
 				const auto bulletChar = listLevel < style.listBullets.length() ? style.listBullets[listLevel - 1] : style.listBullets.back();
 				addGlyph(style.font, bulletChar, penPos, regularFontScale);
