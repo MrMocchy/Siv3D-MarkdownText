@@ -13,6 +13,7 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 		ListType type;
 		size_t mdIndentSize;
 		size_t listLevel;
+		int order;
 	};
 	
 	struct {
@@ -45,24 +46,26 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 				md.remove_prefix(m[0]->length());
 				continue;
 			}
-			if (const auto& m = RegExp(U"^( *)[\\-\\+\\*] +").match(md); not m.isEmpty()) {
-				ListType type = ListType::Unordered;
+			if (const auto& m = RegExp(U"^( *)(\\-|\\+|\\*|\\d\\.) +").match(md); not m.isEmpty()) {
+				ListType type = m[2]->ends_with(U'.') ? ListType::Ordered : ListType::Unordered;
 				size_t mdIndentSize = m[1]->length();
 				size_t listLevel = 1;
+				int order = 1;
 				if (state.listNest.size() == 0) {
-					state.listNest.push_back({ type, mdIndentSize, listLevel });
+					state.listNest.push_back({ type, mdIndentSize, listLevel, order });
 				}
 				else {
 					for (auto itr = state.listNest.rbegin(); itr != state.listNest.rend(); ++itr) {
 						if (mdIndentSize == itr->mdIndentSize) {
 							type = itr->type;
 							listLevel = itr->listLevel;
+							order = itr->order + 1;
 							state.listNest.pop_back_N(state.listNest.rend() - itr - 1);
 							break;
 						}
 						if (mdIndentSize > itr->mdIndentSize) {
 							listLevel = itr->listLevel + 1;
-							state.listNest.push_back({ type, mdIndentSize, listLevel });
+							state.listNest.push_back({ type, mdIndentSize, listLevel, order });
 							break;
 						}
 					}
@@ -74,9 +77,12 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 				}
 				Print << U"ListLevels: " << listLevels;
 				*/
-				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * (listLevel - 0.66);
-				const auto bulletChar = listLevel < style.listBullets.length() ? style.listBullets[listLevel - 1] : style.listBullets.back();
-				addGlyph(style.font, bulletChar, penPos, regularFontScale);
+				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * (listLevel - (type == ListType::Ordered ? 1 : 0.66));
+				const String bulletChar =
+					type == ListType::Ordered ? U"{}."_fmt(order) :
+					listLevel < style.listBullets.length() ? style.listBullets.substr(listLevel - 1, 1)
+					: style.listBullets.substr(style.listBullets.length() - 1);
+				addGlyphs(style.font, bulletChar, penPos, regularFontScale);
 				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * listLevel;
 				md.remove_prefix(m[0]->length());
 				continue;
@@ -125,6 +131,15 @@ Vec2 MarkdownText::addGlyph(const Font& font, const char32& ch, const Vec2& penP
 	glyphInfos.push_back({ glyph, pos, scale });
 
 	return penPos + Vec2{ glyph.xAdvance * scale, 0 };
+}
+
+Vec2 MarkdownText::addGlyphs(const Font& font, const String& str, const Vec2& penPos, double scale)
+{
+	Vec2 pos = penPos;
+	for (const auto& ch : str) {
+		pos = addGlyph(font, ch, pos, scale);
+	}
+	return pos;
 }
 
 RectF MarkdownText::draw(const Vec2& topLeft) const

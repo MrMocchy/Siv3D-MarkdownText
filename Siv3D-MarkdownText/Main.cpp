@@ -21,7 +21,7 @@ U"\
 *ilatic* and **bold** words\n\
 this is not a #heading\n\
 * list1\n\
-  * list2-1\n\
+  1. list2-1\n\
     * list3\n\
   * list2-2\n\
 ";
