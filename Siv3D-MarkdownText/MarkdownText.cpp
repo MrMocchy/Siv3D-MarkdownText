@@ -41,6 +41,12 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 		// 状態変更
 		if (state.headOfLine)
 		{
+			if (const auto& m = RegExp(U"^\n").match(md); not m.isEmpty()) {
+				state.lineBreak();
+				state.listNest.clear();
+				md.remove_prefix(m[0]->length());
+				continue;
+			}
 			if (const auto& m = RegExp(U"^(#{1,6}) +").match(md); not m.isEmpty()) {
 				state.headingLevel = m[1]->length();
 				md.remove_prefix(m[0]->length());
