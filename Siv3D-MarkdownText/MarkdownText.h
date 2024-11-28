@@ -5,11 +5,18 @@
 class MarkdownText
 {
 public:
+	String markdown;
+	MarkdownTextStyle style;
+
 	MarkdownText(String markdown, MarkdownTextStyle style);
 
-	RectF draw(const Vec2& topLeft) const;
+	RectF draw(const Vec2& topLeftPos, const double width = Math::Inf);
+
+	void build();
 
 private:
+
+	double m_width;
 
 	struct GlyphInfo
 	{
@@ -17,7 +24,7 @@ private:
 		Vec2 pos;
 		double scale;
 	};
-	Array<GlyphInfo> glyphInfos;
+	Array<GlyphInfo> m_glyphInfos;
 
 	Vec2 addGlyph(const Font& font, const char32& ch, const Vec2& penPos, double scale);
 	Vec2 addGlyphs(const Font& font, const String& str, const Vec2& penPos, double scale);

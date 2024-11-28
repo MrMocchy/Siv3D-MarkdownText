@@ -1,6 +1,10 @@
 ﻿# include "MarkdownText.h"
 
 MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
+	: markdown(markdown)
+	, style(style) {}
+
+void MarkdownText::build()
 {
 	StringView md = markdown;
 	double regularFontScale = style.headingScales[0];
@@ -37,6 +41,7 @@ MarkdownText::MarkdownText(String markdown, MarkdownTextStyle style)
 	
 	Vec2 penPos{ 0,0 };
 
+	m_glyphInfos.clear();
 	while (md.length() > 0) {
 		// 状態変更
 		if (state.headOfLine)
@@ -134,7 +139,7 @@ Vec2 MarkdownText::addGlyph(const Font& font, const char32& ch, const Vec2& penP
 {
 	const auto glyph = font.getGlyph(ch);
 	const auto pos = penPos + glyph.getOffset(scale);
-	glyphInfos.push_back({ glyph, pos, scale });
+	m_glyphInfos.push_back({ glyph, pos, scale });
 
 	return penPos + Vec2{ glyph.xAdvance * scale, 0 };
 }
@@ -148,14 +153,22 @@ Vec2 MarkdownText::addGlyphs(const Font& font, const String& str, const Vec2& pe
 	return pos;
 }
 
-RectF MarkdownText::draw(const Vec2& topLeft) const
+RectF MarkdownText::draw(const Vec2& topLeftPos, const double width)
 {
-	if (glyphInfos.isEmpty()) {
-		return RectF{ topLeft, 0, 0 };
+	if (width < 0) {
+		m_width = Math::Inf;
 	}
-	RectF bound{ glyphInfos[0].pos + topLeft, 0, 0 };
-	for (const auto& g : glyphInfos) {
-		auto rect = g.glyph.texture.resized(Vec2(g.glyph.texture.size) * g.scale).draw(g.pos + topLeft);
+	if (m_width != width) {
+		m_width = width;
+		build();
+	}
+
+	if (m_glyphInfos.isEmpty()) {
+		return RectF{ topLeftPos, 0, 0 };
+	}
+	RectF bound{ m_glyphInfos[0].pos + topLeftPos, 0, 0 };
+	for (const auto& g : m_glyphInfos) {
+		auto rect = g.glyph.texture.resized(Vec2(g.glyph.texture.size) * g.scale).draw(g.pos + topLeftPos);
 		// rect.drawFrame(1);
 		bound.x = Min(bound.x, rect.x);
 		bound.y = Min(bound.y, rect.y);

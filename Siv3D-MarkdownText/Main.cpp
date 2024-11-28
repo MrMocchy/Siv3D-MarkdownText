@@ -38,7 +38,8 @@ this is not a #heading\n\
 
 		if (SimpleGUI::TextArea(input, Vec2{ 50, 50 }, Size{ 300,500 })) {
 			ClearPrint();
-			md = MarkdownText{ input.text, style };
+			md.markdown = input.text;
+			md.build();
 		}
 		md.draw(Vec2{400,50}).drawFrame(1, Palette::Yellow);
 
