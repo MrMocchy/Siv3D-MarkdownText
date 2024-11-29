@@ -26,6 +26,8 @@ void MarkdownText::build()
 		size_t headingLevel = 0;
 		Array<ListInfo> listNest;
 
+		double indent = 0;
+
 		bool strong = false;
 		bool italic = false;
 
@@ -49,6 +51,9 @@ void MarkdownText::build()
 			if (const auto& m = RegExp(U"^\n").match(md); not m.isEmpty()) {
 				state.lineBreak();
 				state.listNest.clear();
+				state.indent = 0;
+				penPos.x = 0;
+				penPos.y += style.font.height() * regularFontScale * 0.2;
 				md.remove_prefix(m[0]->length());
 				continue;
 			}
@@ -88,7 +93,8 @@ void MarkdownText::build()
 				}
 				Print << U"ListLevels: " << listLevels;
 				*/
-				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * (listLevel - (type == ListType::Ordered ? 1 : 0.66));
+				state.indent = style.fontSize * regularFontScale * style.listIndentSize * listLevel;
+				penPos.x = state.indent - style.fontSize * regularFontScale * style.listIndentSize * (type == ListType::Ordered ? 1 : 0.66);
 				const String bulletChar =
 					type == ListType::Ordered ? U"{}."_fmt(order) :
 					listLevel < style.listBullets.length() ? style.listBullets.substr(listLevel - 1, 1)
@@ -103,7 +109,7 @@ void MarkdownText::build()
 		state.headOfLine = false;
 		{
 			if (const auto& m = RegExp(U"^\\n").match(md); not m.isEmpty()) {
-				penPos.x = 0;
+				penPos.x = state.indent;
 				penPos.y += style.font.height() * style.headingScales[state.headingLevel];
 				state.lineBreak();
 				md.remove_prefix(m[0]->length());
