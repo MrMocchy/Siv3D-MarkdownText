@@ -48,6 +48,7 @@ void MarkdownText::build()
 		// 状態変更
 		if (state.headOfLine)
 		{
+			state.headOfLine = false;
 			if (const auto& m = RegExp(U"^\n").match(md); not m.isEmpty()) {
 				state.lineBreak();
 				state.listNest.clear();
@@ -104,9 +105,9 @@ void MarkdownText::build()
 				md.remove_prefix(m[0]->length());
 				continue;
 			}
+			state.headOfLine = false;
 		}
 
-		state.headOfLine = false;
 		{
 			if (const auto& m = RegExp(U"^\\n").match(md); not m.isEmpty()) {
 				penPos.x = state.indent;
