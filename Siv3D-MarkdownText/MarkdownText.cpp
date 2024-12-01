@@ -77,6 +77,7 @@ void MarkdownText::build()
 							type = itr->type;
 							listLevel = itr->listLevel;
 							order = itr->order + 1;
+							itr->order = order;
 							state.listNest.pop_back_N(state.listNest.rend() - itr - 1);
 							break;
 						}
