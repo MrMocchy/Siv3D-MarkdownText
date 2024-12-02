@@ -1,47 +1,82 @@
 ﻿# include <Siv3D.hpp> // Siv3D v0.6.15
 # include "MarkdownText.h"
 
-void Test(String md, MarkdownTextStyle style, Vec2* pos)
-{
-	SimpleGUI::GetFont()(md).draw(*pos);
-	pos->y += 30;
-
-	MarkdownText(md, style).draw(*pos);
-	pos->y += 50;
-}
-
 void Main()
 {
-	MarkdownTextStyle style{30};
-
-	TextAreaEditState input;
-	input.text =
+	int currentTab = 0;
+	Array<String> tabs = { U"Test", U"説明書" };
+	Array<String> texts = {
 U"\
 # Hello, *Siv3D*!\n\
 *ilatic* and **bold** words\n\
-this is not a #heading\n\
+this is not a # heading\n\
+\n\
+## Listing\n\
 * list1\n\
   1. list2-1\n\
     * list3\n\
   * list2-2\n\
-";
+",
+U"\
+# ブロック崩し\n\
+## 遊び方\n\
+1. 画面をクリックすると、**ボール**が発射されます。\n\
+2. **ボール**が**ブロック**に当たると、**ブロック**が消えます。\n\
+3. **マウス**を追って**パドル**が動きます。\n\
+3. **パドル**に当たった**ボール**は跳ね返ります。\n\
+4. **ブロック**を全て消すとクリア！\n\
+\n\
+## スコア\n\
+* ブロックを消すと得点が入ります。\n\
+* 連続でブロックを消すとボーナスが入ります。\n\
+* クリアすると、残り時間がボーナスに加算されます。\n\
+* 友達とスコアを競い合おう！\n\
+"
+	};
+
+	Array<MarkdownTextStyle> styles = { {25}, {25} };
+
+	TextAreaEditState input;
+	input.text = texts[currentTab];
 	input.rebuildGlyphs();
 
-	MarkdownText md{ input.text, style };
+	MarkdownText md{ input.text, styles[currentTab]};
 
 	while (System::Update())
 	{
 
-		Vec2 pos = { 50, 50 };
-
-		//Test(U"# Hello, *Siv3D*!", style, &pos);
-
-		if (SimpleGUI::TextArea(input, Vec2{ 50, 50 }, Size{ 300,500 })) {
-			ClearPrint();
-			md.markdown = input.text;
-			md.build();
+		Vec2 tabPos{ 50, 10 };
+		for (auto [i,label] : Indexed(tabs)) {
+			auto text = SimpleGUI::GetFont()(label);
+			auto region = text.region(tabPos).stretched(10,5);
+			if (currentTab == i) region.draw(Palette::Dimgrey);
+			if (region.leftClicked()) {
+				currentTab = i;
+				input.text = texts[currentTab];
+				input.rebuildGlyphs();
+				md.markdown = texts[currentTab];
+				md.style = styles[currentTab];
+				md.build();
+			}
+			tabPos.x += text.draw(tabPos).w + 20;
 		}
-		md.draw(Vec2{400,50}).drawFrame(1, Palette::Yellow);
+
+		switch (currentTab)
+		{
+		case 0:
+			if (SimpleGUI::TextArea(input, Vec2{ 50, 70 }, Size{ 300,500 })) {
+				ClearPrint();
+				texts[currentTab] = input.text;
+				md.markdown = texts[currentTab];
+				md.build();
+			}
+			md.draw(Vec2{ 400,50 });
+			break;
+		case 1:
+			md.draw(Vec2{ 50,70 });
+			break;
+		}
+
 
 	}
 }
