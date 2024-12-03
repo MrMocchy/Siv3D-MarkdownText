@@ -4,7 +4,7 @@
 void Main()
 {
 	int currentTab = 0;
-	Array<String> tabs = { U"Test", U"説明書" };
+	Array<String> tabs = { U"Test", U"説明書", U"フレーバーテキスト"};
 	Array<String> texts = {
 U"\
 # Hello, *Siv3D*!\n\
@@ -31,10 +31,19 @@ U"\
 * 連続でブロックを消すとボーナスが入ります。\n\
 * クリアすると、残り時間がボーナスに加算されます。\n\
 * 友達とスコアを競い合おう！\n\
-"
+",
+U"\
+## 骨のナイフ\n\
+*中型の動物の骨から作られたと思しき***古びた***ナイフ。*\n\
+*刃は***鋭く***、柄は滑り止めのために皮で巻かれている。*\n\
+*かつての持ち主の手入れが不十分だったのだろう、***汚れ***がこびりついている。*\n\
+- 耐久性 -20%\n\
+- 攻撃力 +10%\n\
+- 感染確率 +5%\n\
+",
 	};
 
-	Array<MarkdownTextStyle> styles = { {25}, {25} };
+	Array<MarkdownTextStyle> styles = { {25}, {25}, {20} };
 
 	TextAreaEditState input;
 	input.text = texts[currentTab];
@@ -73,6 +82,9 @@ U"\
 			md.draw(Vec2{ 400,50 });
 			break;
 		case 1:
+			md.draw(Vec2{ 50,70 });
+			break;
+		case 2:
 			md.draw(Vec2{ 50,70 });
 			break;
 		}
