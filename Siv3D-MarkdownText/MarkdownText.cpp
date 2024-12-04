@@ -101,7 +101,7 @@ void MarkdownText::build()
 					type == ListType::Ordered ? U"{}."_fmt(order) :
 					listLevel < style.listBullets.length() ? style.listBullets.substr(listLevel - 1, 1)
 					: style.listBullets.substr(style.listBullets.length() - 1);
-				addGlyphs(style.font, bulletChar, penPos, regularFontScale);
+				addGlyphs(style.font, bulletChar, penPos, regularFontScale, state.indent);
 				penPos.x = style.fontSize * regularFontScale * style.listIndentSize * listLevel;
 				md.remove_prefix(m[0]->length());
 				continue;
@@ -136,27 +136,34 @@ void MarkdownText::build()
 				(state.italic ? style.italicFont : style.font);
 			const double scale = style.headingScales[state.headingLevel];
 
-			penPos = addGlyph(font, md[0], penPos, scale);
+			penPos = addGlyph(font, md[0], penPos, scale, state.indent);
 
 			md.remove_prefix(1);
 		}
 	}
 }
 
-Vec2 MarkdownText::addGlyph(const Font& font, const char32& ch, const Vec2& penPos, double scale)
+Vec2 MarkdownText::addGlyph(const Font& font, const char32& ch, const Vec2& _penPos, double scale, double indent)
 {
 	const auto glyph = font.getGlyph(ch);
-	const auto pos = penPos + glyph.getOffset(scale);
-	m_glyphInfos.push_back({ glyph, pos, scale });
+	auto penPos = _penPos;
+	auto glyphPos = penPos + glyph.getOffset(scale);
+	const auto glyphRightX = glyphPos.x + glyph.texture.size.x * scale;
+	if (m_width < glyphRightX) {
+		penPos.x = indent;
+		penPos.y += font.height() * scale;
+		glyphPos = penPos + glyph.getOffset(scale);
+	}
+	m_glyphInfos.push_back({ glyph, glyphPos, scale });
 
 	return penPos + Vec2{ glyph.xAdvance * scale, 0 };
 }
 
-Vec2 MarkdownText::addGlyphs(const Font& font, const String& str, const Vec2& penPos, double scale)
+Vec2 MarkdownText::addGlyphs(const Font& font, const String& str, const Vec2& penPos, double scale, double indent)
 {
 	Vec2 pos = penPos;
 	for (const auto& ch : str) {
-		pos = addGlyph(font, ch, pos, scale);
+		pos = addGlyph(font, ch, pos, scale, indent);
 	}
 	return pos;
 }

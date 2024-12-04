@@ -79,7 +79,7 @@ U"\
 				md.markdown = texts[currentTab];
 				md.build();
 			}
-			md.draw(Vec2{ 400,50 });
+			md.draw(Vec2{ 400,50 }, 350);
 			break;
 		case 1:
 			md.draw(Vec2{ 50,70 });
