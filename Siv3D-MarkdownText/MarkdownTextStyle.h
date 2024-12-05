@@ -17,6 +17,7 @@ public:
 	// h1(最大)サイズを1.0として、それ以外のサイズを調整する。
 	// これにより Bitmap フォントかつ高解像度で表示できる。
 	// あるいはBitmapが大きくなるため、SDF/MSDFフォントの方が良いかもしれない。使用する文字種数による？
+	// regular, h1, h2, h3, h4, h5, h6
 	Array<double> headingScales = Array{ 0.5, 1.0, 0.8, 0.7, 0.65, 0.6, 0.55 };
 
 	MarkdownTextStyle() = default;

@@ -171,7 +171,7 @@ Vec2 MarkdownText::addGlyphs(const Font& font, const String& str, const Vec2& pe
 RectF MarkdownText::draw(const Vec2& topLeftPos, const double width)
 {
 	if (width < 0) {
-		m_width = Math::Inf;
+		return RectF{ topLeftPos, 0, 0 };
 	}
 	if (m_width != width) {
 		m_width = width;
@@ -184,6 +184,31 @@ RectF MarkdownText::draw(const Vec2& topLeftPos, const double width)
 	RectF bound{ m_glyphInfos[0].pos + topLeftPos, 0, 0 };
 	for (const auto& g : m_glyphInfos) {
 		auto rect = g.glyph.texture.resized(Vec2(g.glyph.texture.size) * g.scale).draw(g.pos + topLeftPos);
+		// rect.drawFrame(1);
+		bound.x = Min(bound.x, rect.x);
+		bound.y = Min(bound.y, rect.y);
+		bound.w = Max(bound.x + bound.w, rect.x + rect.w) - bound.x;
+		bound.h = Max(bound.y + bound.h, rect.y + rect.h) - bound.y;
+	}
+	return bound;
+}
+
+RectF MarkdownText::region(const Vec2& topLeftPos, const double width)
+{
+	if (width < 0) {
+		return RectF{ topLeftPos, 0, 0 };
+	}
+	if (m_width != width) {
+		m_width = width;
+		build();
+	}
+
+	if (m_glyphInfos.isEmpty()) {
+		return RectF{ topLeftPos, 0, 0 };
+	}
+	RectF bound{ m_glyphInfos[0].pos + topLeftPos, 0, 0 };
+	for (const auto& g : m_glyphInfos) {
+		auto rect = g.glyph.texture.resized(Vec2(g.glyph.texture.size) * g.scale).region(g.pos + topLeftPos);
 		// rect.drawFrame(1);
 		bound.x = Min(bound.x, rect.x);
 		bound.y = Min(bound.y, rect.y);

@@ -12,11 +12,13 @@ public:
 
 	RectF draw(const Vec2& topLeftPos, const double width = Math::Inf);
 
+	RectF region(const Vec2& topLeftPos, const double width = Math::Inf);
+
 	void build();
 
 private:
 
-	double m_width;
+	double m_width = -1;
 
 	struct GlyphInfo
 	{
