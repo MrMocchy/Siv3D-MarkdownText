@@ -9,6 +9,7 @@ public:
 	Font strongFont;
 	Font italicFont;
 	Font strongItalicFont;
+	Color color = Palette::White;
 
 	size_t mdListIndentSpaceSize = 2;
 	double listIndentSize = 1;

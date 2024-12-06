@@ -183,7 +183,7 @@ RectF MarkdownText::draw(const Vec2& topLeftPos, const double width)
 	}
 	RectF bound{ m_glyphInfos[0].pos + topLeftPos, 0, 0 };
 	for (const auto& g : m_glyphInfos) {
-		auto rect = g.glyph.texture.resized(Vec2(g.glyph.texture.size) * g.scale).draw(g.pos + topLeftPos);
+		auto rect = g.glyph.texture.resized(Vec2(g.glyph.texture.size) * g.scale).draw(g.pos + topLeftPos, style.color);
 		// rect.drawFrame(1);
 		bound.x = Min(bound.x, rect.x);
 		bound.y = Min(bound.y, rect.y);
