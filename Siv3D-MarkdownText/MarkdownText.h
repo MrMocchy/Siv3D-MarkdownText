@@ -25,11 +25,12 @@ private:
 		Glyph glyph;
 		Vec2 pos;
 		double scale;
+		Color color;
 	};
 	Array<GlyphInfo> m_glyphInfos;
 
-	Vec2 addGlyph(const Font& font, const char32& ch, const Vec2& penPos, double scale, double indent);
-	Vec2 addGlyphs(const Font& font, const String& str, const Vec2& penPos, double scale, double indent);
+	Vec2 addGlyph(const Font& font, const Color& color, const char32& ch, const Vec2& penPos, double scale, double indent);
+	Vec2 addGlyphs(const Font& font, const Color& color, const String& str, const Vec2& penPos, double scale, double indent);
 
 };
 

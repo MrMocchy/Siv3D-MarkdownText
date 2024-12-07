@@ -9,7 +9,11 @@ public:
 	Font strongFont;
 	Font italicFont;
 	Font strongItalicFont;
+
 	Color color = Palette::White;
+	Color strongColor = Palette::White;
+	Color italicColor = Palette::White;
+	Color strongItalicColor = Palette::White;
 
 	size_t mdListIndentSpaceSize = 2;
 	double listIndentSize = 1;
@@ -23,9 +27,10 @@ public:
 
 	MarkdownTextStyle() = default;
 
-	MarkdownTextStyle(const int32 _fontSize)
+	MarkdownTextStyle(const int32 _fontSize, const Color _color = Palette::White)
 	{
 		fontSize = int32(_fontSize / headingScales[0]);
+		color = _color;
 		SetFontAuto();
 	}
 
@@ -35,6 +40,10 @@ public:
 		strongFont = Font(fontMethod, fontSize, Typeface::Bold);
 		italicFont = Font(fontMethod, fontSize, Typeface::Regular, FontStyle::Italic);
 		strongItalicFont = Font(fontMethod, fontSize, Typeface::Bold, FontStyle::Italic);
+
+		strongColor = color;
+		italicColor = color;
+		strongItalicColor = color;
 	}
 
 };

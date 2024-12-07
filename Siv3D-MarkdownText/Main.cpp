@@ -39,13 +39,15 @@ U"\
 *当然ながら戦闘に用いるには**取り回しが悪い**が、急場は凌げるだろう。*\n\
 - 攻撃力 **+20**\n\
 - 攻撃速度 **-30%**\n\
-- 射程 **70**\n\
+- 射程 **20**\n\
 - 耐久値 **134/150**\n\
 - 《料理》の成功率 **x2**\n\
 ",
 	};
 
-	Array<MarkdownTextStyle> styles = { {25}, {25}, {20} };
+	Array<MarkdownTextStyle> styles = { {25}, {25}, {20, Palette::Black} };
+	styles[2].italicColor = Palette::Dimgray;
+	styles[2].strongItalicColor = Palette::Dimgray;
 
 	TextAreaEditState input;
 	input.text = texts[currentTab];
