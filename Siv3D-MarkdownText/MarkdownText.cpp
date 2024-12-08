@@ -127,6 +127,21 @@ void MarkdownText::build()
 				md.remove_prefix(m[0]->length());
 				continue;
 			}
+			if (const auto& m = RegExp(U"^\\[([^\\]]+)\\]\\(([^\\)]+)\\)").match(md); not m.isEmpty()) {
+				const auto& text = *m[1];
+				const auto& link = *m[2];
+				const auto& callback = style.callbackTable[link];
+				const auto font = state.strong ?
+					(state.italic ? style.strongItalicFont : style.strongFont) :
+					(state.italic ? style.italicFont : style.font);
+				const auto color = state.strong ?
+					(state.italic ? style.strongItalicColor : style.strongColor) :
+					(state.italic ? style.italicColor : style.color);
+				const double scale = style.headingScales[state.headingLevel];
+				penPos = addGlyphs(font, color, text, penPos, scale, state.indent, callback);
+				md.remove_prefix(m[0]->length());
+				continue;
+			}
 		}
 
 		// グリフ情報の追加
@@ -146,7 +161,7 @@ void MarkdownText::build()
 	}
 }
 
-Vec2 MarkdownText::addGlyph(const Font& font, const Color& color, const char32& ch, const Vec2& _penPos, double scale, double indent)
+Vec2 MarkdownText::addGlyph(const Font& font, const Color& color, const char32& ch, const Vec2& _penPos, double scale, double indent, const std::function<void()>& callback)
 {
 	const auto glyph = font.getGlyph(ch);
 	auto penPos = _penPos;
@@ -157,16 +172,16 @@ Vec2 MarkdownText::addGlyph(const Font& font, const Color& color, const char32& 
 		penPos.y += font.height() * scale;
 		glyphPos = penPos + glyph.getOffset(scale);
 	}
-	m_glyphInfos.push_back({ glyph, glyphPos, scale, color });
+	m_glyphInfos.push_back({ glyph, glyphPos, scale, color, callback });
 
 	return penPos + Vec2{ glyph.xAdvance * scale, 0 };
 }
 
-Vec2 MarkdownText::addGlyphs(const Font& font, const Color& color, const String& str, const Vec2& penPos, double scale, double indent)
+Vec2 MarkdownText::addGlyphs(const Font& font, const Color& color, const StringView& str, const Vec2& penPos, double scale, double indent, const std::function<void ()>& callback)
 {
 	Vec2 pos = penPos;
 	for (const auto& ch : str) {
-		pos = addGlyph(font, color, ch, pos, scale, indent);
+		pos = addGlyph(font, color, ch, pos, scale, indent, callback);
 	}
 	return pos;
 }
@@ -187,7 +202,11 @@ RectF MarkdownText::draw(const Vec2& topLeftPos, const double width)
 	RectF bound{ m_glyphInfos[0].pos + topLeftPos, 0, 0 };
 	for (const auto& g : m_glyphInfos) {
 		auto rect = g.glyph.texture.resized(Vec2(g.glyph.texture.size) * g.scale).draw(g.pos + topLeftPos, g.color);
-		// rect.drawFrame(1);
+		if (g.callback) {
+			if (rect.leftClicked()) {
+				g.callback();
+			}
+		}
 		bound.x = Min(bound.x, rect.x);
 		bound.y = Min(bound.y, rect.y);
 		bound.w = Max(bound.x + bound.w, rect.x + rect.w) - bound.x;
@@ -212,7 +231,6 @@ RectF MarkdownText::region(const Vec2& topLeftPos, const double width)
 	RectF bound{ m_glyphInfos[0].pos + topLeftPos, 0, 0 };
 	for (const auto& g : m_glyphInfos) {
 		auto rect = g.glyph.texture.resized(Vec2(g.glyph.texture.size) * g.scale).region(g.pos + topLeftPos);
-		// rect.drawFrame(1);
 		bound.x = Min(bound.x, rect.x);
 		bound.y = Min(bound.y, rect.y);
 		bound.w = Max(bound.x + bound.w, rect.x + rect.w) - bound.x;

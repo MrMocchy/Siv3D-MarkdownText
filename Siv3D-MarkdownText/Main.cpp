@@ -4,7 +4,7 @@
 void Main()
 {
 	int currentTab = 0;
-	Array<String> tabs = { U"Test", U"説明書", U"フレーバーテキスト"};
+	Array<String> tabs = { U"Test", U"説明書", U"フレーバーテキスト", U"リンク"};
 	Array<String> texts = {
 U"\
 # Hello, *Siv3D*!\n\
@@ -43,11 +43,18 @@ U"\
 - 耐久値 **134/150**\n\
 - 《料理》の成功率 **x2**\n\
 ",
+U"\
+# リンクテスト\n\
+[リンク](link)\n\
+",
 	};
 
-	Array<MarkdownTextStyle> styles = { {25}, {25}, {20, Palette::Black} };
+	Array<MarkdownTextStyle> styles = { {25}, {25}, {20, Palette::Black}, {25} };
 	styles[2].italicColor = Palette::Dimgray;
 	styles[2].strongItalicColor = Palette::Dimgray;
+	styles[3].callbackTable[U"link"] = []() {
+		Print << U"リンクがクリックされました。";
+	};
 
 	TextAreaEditState input;
 	input.text = texts[currentTab];
@@ -98,6 +105,9 @@ U"\
 				md.region(textPos, 350).stretched(10,10).rounded(10).draw(Palette::Tan).drawFrame(3, Palette::Peru);
 				md.draw(textPos, 350);
 			}
+			break;
+		case 3:
+			md.draw(Vec2{ 50,70 });
 			break;
 		}
 

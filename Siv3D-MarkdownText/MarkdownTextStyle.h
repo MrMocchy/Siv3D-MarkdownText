@@ -25,6 +25,8 @@ public:
 	// regular, h1, h2, h3, h4, h5, h6
 	Array<double> headingScales = Array{ 0.5, 1.0, 0.8, 0.7, 0.65, 0.6, 0.55 };
 
+	HashTable<String, std::function<void ()>> callbackTable;
+
 	MarkdownTextStyle() = default;
 
 	MarkdownTextStyle(const int32 _fontSize, const Color _color = Palette::White)
