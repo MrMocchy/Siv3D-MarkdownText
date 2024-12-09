@@ -14,6 +14,7 @@ public:
 	Color strongColor = Palette::White;
 	Color italicColor = Palette::White;
 	Color strongItalicColor = Palette::White;
+	Color linkColor = Palette::Deepskyblue;
 
 	size_t mdListIndentSpaceSize = 2;
 	double listIndentSize = 1;

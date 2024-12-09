@@ -134,11 +134,8 @@ void MarkdownText::build()
 				const auto font = state.strong ?
 					(state.italic ? style.strongItalicFont : style.strongFont) :
 					(state.italic ? style.italicFont : style.font);
-				const auto color = state.strong ?
-					(state.italic ? style.strongItalicColor : style.strongColor) :
-					(state.italic ? style.italicColor : style.color);
 				const double scale = style.headingScales[state.headingLevel];
-				penPos = addGlyphs(font, color, text, penPos, scale, state.indent, callback);
+				penPos = addGlyphs(font, style.linkColor, text, penPos, scale, state.indent, callback);
 				md.remove_prefix(m[0]->length());
 				continue;
 			}
