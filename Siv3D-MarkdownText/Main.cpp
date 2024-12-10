@@ -45,15 +45,40 @@ U"\
 ",
 U"\
 # リンクテスト\n\
-[リンク](link)\n\
+## 実行\n\
+- [Print << U\"Hello, Siv3D!\";](Print)\n\
+- [ClearPrint()](ClearPrint)\n\
+## Siv3D ドキュメント\n\
+- [公式サイト](Siv3D_HP)\n\
+- [GitHub](Siv3D_GitHub)\n\
+## その他\n\
+- [トースト通知](Toast)\n\
 ",
 	};
 
 	Array<MarkdownTextStyle> styles = { {25}, {25}, {20, Palette::Black}, {25} };
 	styles[2].italicColor = Palette::Dimgray;
 	styles[2].strongItalicColor = Palette::Dimgray;
-	styles[3].callbackTable[U"link"] = []() {
-		Print << U"リンクがクリックされました。";
+	styles[3].callbackTable[U"Print"] = []() {
+		Print << U"Hello, Siv3D!";
+	};
+	styles[3].callbackTable[U"ClearPrint"] = []() {
+		ClearPrint();
+	};
+	styles[3].callbackTable[U"Siv3D_HP"] = []() {
+		System::LaunchBrowser(U"https://siv3d.github.io/");
+	};
+	styles[3].callbackTable[U"Siv3D_GitHub"] = []() {
+		System::LaunchBrowser(U"https://github.com/Siv3D/OpenSiv3D");
+	};
+	styles[3].callbackTable[U"Toast"] = []() {
+		Platform::Windows::ToastNotification::Clear();
+		const ToastNotificationItem item
+		{
+			.title = U"Toast Notification from Siv3D",
+			.message = U"Triggered in markdown styled link.",
+		};
+		Platform::Windows::ToastNotification::Show(item);
 	};
 
 	TextAreaEditState input;
