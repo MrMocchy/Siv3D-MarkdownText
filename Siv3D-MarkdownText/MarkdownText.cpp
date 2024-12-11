@@ -169,7 +169,8 @@ Vec2 MarkdownText::addGlyph(const Font& font, const Color& color, const char32& 
 		penPos.y += font.height() * scale;
 		glyphPos = penPos + glyph.getOffset(scale);
 	}
-	m_glyphInfos.push_back({ glyph, glyphPos, scale, color, callback });
+	auto callbackHitbox = RectF{ penPos, glyph.xAdvance * scale, font.height() * scale};
+	m_glyphInfos.push_back({ glyph, glyphPos, scale, color, callback, callbackHitbox });
 
 	return penPos + Vec2{ glyph.xAdvance * scale, 0 };
 }
@@ -200,7 +201,7 @@ RectF MarkdownText::draw(const Vec2& topLeftPos, const double width)
 	for (const auto& g : m_glyphInfos) {
 		auto rect = g.glyph.texture.resized(Vec2(g.glyph.texture.size) * g.scale).draw(g.pos + topLeftPos, g.color);
 		if (g.callback) {
-			if (rect.leftClicked()) {
+			if (g.callbackHitbox.movedBy(topLeftPos).leftClicked()) {
 				g.callback();
 			}
 		}

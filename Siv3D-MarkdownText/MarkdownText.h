@@ -27,6 +27,7 @@ private:
 		double scale;
 		Color color;
 		std::function<void()> callback;
+		RectF callbackHitbox;
 	};
 	Array<GlyphInfo> m_glyphInfos;
 
