@@ -48,9 +48,11 @@ U"\
 ## 実行\n\
 - [Print << U\"Hello, Siv3D!\";](Print)\n\
 - [ClearPrint()](ClearPrint)\n\
+\n\
 ## Siv3D ドキュメント\n\
 - [公式サイト](Siv3D_HP)\n\
 - [GitHub](Siv3D_GitHub)\n\
+\n\
 ## その他\n\
 - [トースト通知](Toast)\n\
 ",
