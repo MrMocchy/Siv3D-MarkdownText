@@ -14,8 +14,111 @@
   - ゲームでのアイテムの効果やフレーバーテキスト
   - ツールのボタンの説明をポップアップで
 
-など、文章を表示する機会は多いです。
+など。
 このような文章を書く際、Markdown は非常に便利です。
 
 Siv3D でも Markdown で書いた文章を描画したい。
 そんな思いから、Siv3D で Markdown を描画するクラスを作ってみました。
+
+## 作成したもの
+
+https://github.com/MrMocchy/Siv3D-MarkdownText
+
+なお、対応した記法は以下のもののみです。
+
+- 見出し (h1 ~ h6)
+- 強調 (strong, italic, 両方)
+- リスト (unordered, ordered)
+- リンク
+
+今回作成したこのクラス、出来（描画結果や機能）は自分にしてはかなりいいのではと思っています。
+しかしコードの方はとてもお見せできるものではないです。
+参考以下に見ていただければと思います。
+
+## 概要
+
+最もシンプルな使い方は以下のようになります。
+
+```cpp
+
+void Main(){
+  MarkdownTextStyle style{20};
+  // stylee.strongColor = Color{ 36, 145, 212 };
+  MarkdownText md{ U"Hello, **Siv3D**!", style };
+  
+  while (System::Update()){
+    md.draw({ 100, 100 });
+  }
+}
+```
+
+描画例としては以下のような感じです。
+
+![記法サンプル](MediaForArticle/Grammar.png)
+
+![ゲームの説明サンプル](MediaForArticle/HowToPlay.png)
+
+![ゲームアイテムのフレーバーテキスト風サンプル](MediaForArticle/FlavorText.png)
+
+![リンクのサンプル(gif)](MediaForArticle/Link.gif)
+
+## 中身
+
+読む価値ないですが、自分の考えの記録として。
+
+`MarkdownText` クラスがメインで、以下のような構造です。
+
+```cpp
+class MarkdownText
+{
+public:
+	String markdown;
+	MarkdownTextStyle style;
+
+	MarkdownText(String markdown, MarkdownTextStyle style);
+
+	RectF draw(const Vec2& topLeftPos, const double width = Math::Inf);
+
+	RectF region(const Vec2& topLeftPos, const double width = Math::Inf);
+
+	void build();
+
+private:
+
+	double m_width = -1;
+
+	struct GlyphInfo
+	{
+		Glyph glyph;
+		Vec2 pos;
+		double scale;
+		Color color;
+		std::function<void()> callback;
+		RectF callbackHitbox;
+	};
+	Array<GlyphInfo> m_glyphInfos;
+
+	Vec2 addGlyph(...);
+	Vec2 addGlyphs(...);
+};
+```
+
+これは `MarkdownTextStyle` クラスの変数を持ちます。
+これは表示する文字のスタイルを指定するためのもので、強調などのフォント、Heading のフォントサイズ、文字色などを格納します。
+
+スタイルについては置いておいて、`MarkdownText` の処理の説明をします。
+コンストラクタでは、与えられた Markdown 文字列とスタイルを受け取り格納だけします。
+`build` メソッドを呼び出すことで、Markdown 文字列を解析し、描画するためのグリフ情報を生成します。
+
+描画する際は `draw` メソッドを呼び出します。
+その引数には描画する左上の座標と、描画する領域の幅（デフォルトは無限）を指定します。
+幅が前回と異なると `build` メソッドが呼ばれ、グリフ情報を更新します。
+`region` メソッドは描画しない `draw` です。
+
+グリフ情報というのは、どのフォントのどの文字を（Glyph）、どこに(Vec2)、どの大きさで(double)、どの色で(Color)描画するかを格納します。
+一度この情報を生成すると、内容が変わらない限りはこれを使って描画するだけでいいので効率がいいです。この方法は `SimpleGUI::TextArea`　(`TextAreaEditState`) の実装を参考にしました。
+
+マウスカーソルに追従するツールチップのようなものを表示する際、カーソルが画面端に近いときには描画範囲を変更する必要があるので、`draw` メソッドの引数に幅を指定できるようにしました。
+しかしよく考えると、これは単に描画位置を変えればいいだけですし、描画範囲を狭めても見にくくなってしまうので、この機能は不要だと気づきました。
+
+一方、文字列やスタイルが変わったときには手動で `build` メソッドを呼ぶ必要があります。スタイルがもつ変数が多いために面倒だと思ったのが始めの理由でしたが、利用用途からして描画内容は滅多に変わらないと思われるので、これは問題ないと考えました。
