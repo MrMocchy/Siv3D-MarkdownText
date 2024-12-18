@@ -1,13 +1,31 @@
 ﻿# include <Siv3D.hpp> // Siv3D v0.6.15
 # include "MarkdownText.h"
 
+class ClickEffect : public IEffect
+{
+	Vec2 m_pos;
+public:
+	ClickEffect(const Vec2& pos) : m_pos(pos) {}
+	bool update(double t) override
+	{
+		const double time = 0.5;
+		const double r = Sqrt(1500 * (t / time));
+		const double alpha = Pow(1 - t / time, 2);
+		Circle{ m_pos, r }.draw(AlphaF(alpha));
+		return t < time;
+	}
+};
+
 void Main()
 {
+	ScreenCapture::SetShortcutKeys({ KeyControl + KeyS });
+	Effect effect;
+
 	int currentTab = 0;
 	Array<String> tabs = { U"Test", U"説明書", U"フレーバーテキスト", U"リンク"};
 	Array<String> texts = {
 U"\
-# Hello, *Siv3D*!\n\
+# Hello, ***Siv3D***!\n\
 *ilatic* and **bold** words\n\
 this is not a # heading\n\
 \n\
@@ -16,6 +34,9 @@ this is not a # heading\n\
   1. list2-1\n\
     * list3\n\
   * list2-2\n\
+\n\
+## Link\n\
+[Link](to-somewhere)\n\
 ",
 U"\
 # ブロック崩し\n\
@@ -135,6 +156,10 @@ U"\
 			break;
 		case 3:
 			md.draw(Vec2{ 50,70 });
+			if (MouseL.down()) {
+				effect.add<ClickEffect>(Cursor::PosF());
+			}
+			effect.update();
 			break;
 		}
 
