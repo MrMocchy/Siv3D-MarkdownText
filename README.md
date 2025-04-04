@@ -1,6 +1,8 @@
 
 # Siv3D で Markdown を描画する
 
+このREADMEファイルは、Qiitaに投稿した記事 [Siv3D で Markdown を描画する](https://qiita.com/MrMocchy/items/5fdfafa4d87ce8d6276b) と同一のものです。
+
 本記事は、[Siv3D Advent Calendar 2024](https://qiita.com/advent-calendar/2024/siv3d) の19日目の記事です。
 
 ## 動機
