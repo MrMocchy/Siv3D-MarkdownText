@@ -1,2 +1,0 @@
-# Siv3D-MarkdownText
-Siv3Dにおいて、Markdown形式で書かれた文字列をフォーマットして表示する
